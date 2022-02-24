@@ -23,10 +23,12 @@ authToken = args.token
 url = 'https://api.github.com/'
 lowerlimit=10
 upperlimit=100
-# headers = {
-#     "Accept" : "application/vnd.github.v3+json",
-#     "Authorization" : 'Bearer' + authToken
-# }
+headers = {
+    "Accept": "application/vnd.github.v3+json",
+    "Authorization": "Bearer " + authToken
+   }
+
+
 
 protections_payload = {
     "required_pull_request_reviews" : {
@@ -62,7 +64,7 @@ def get_repo_branches(owner, repository):
 def protect_branches(owner, repository, branch):
     query = url + 'repos/' + owner + '/' + repository + '/branches/' + branch + '/protection'
     #print(query)
-    res = requests.put(query, headers = {'Authorization': 'Bearer ' + authToken}, data=protections_payload)
+    res = requests.put(query, headers = headers, data=protections_payload)
     protect_status_code = res.status_code
     print("Protect Branches Status Code: " + str(res.status_code))
     #print(protect_response)
@@ -70,7 +72,7 @@ def protect_branches(owner, repository, branch):
 
 def create_issue(owner, repository, message):
     query = url + 'repos/' + owner + '/' + repository + '/issues'
-    res = requests.post(query, headers = {'Authorization': 'Bearer ' + authToken}, data=json.dumps({"title" : "Branch Protections" , "body" : message }))
+    res = requests.post(query, headers = headers, data=json.dumps({"title" : "Branch Protections" , "body" : message }))
     print(query)
     print("Create Issues Status Code: " + str(res.status_code))
     #print(res.json())
