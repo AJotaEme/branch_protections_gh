@@ -42,6 +42,10 @@ protections_payload = {
     "restrictions" : None
 }
 protections_payload = json.dumps(protections_payload)
+protections_added = """
+- Require Pull Reviewers
+- Required Status Checks"""
+
 #print(protections_payload)
 
 def get_repo_branches(owner, repository):
@@ -49,6 +53,7 @@ def get_repo_branches(owner, repository):
     #print(query)
     res = requests.get(query, headers = {'Authorization': 'Bearer ' + authToken})
     branches = res.json()
+    print("Get Branches Status Code: " + str(res.status_code))
     #print(branches)
     return branches
     
@@ -56,16 +61,24 @@ def get_repo_branches(owner, repository):
 
 def protect_branches(owner, repository, branch):
     query = url + 'repos/' + owner + '/' + repository + '/branches/' + branch + '/protection'
-    print(query)
+    #print(query)
     res = requests.put(query, headers = {'Authorization': 'Bearer ' + authToken}, data=protections_payload)
     protect_status_code = res.status_code
-    print(res.status_code)
+    print("Protect Branches Status Code: " + str(res.status_code))
     #print(protect_response)
     return protect_status_code
 
-def create_issue(owner, repository):
+def create_issue(owner, repository, message):
     query = url + 'repos/' + owner + '/' + repository + '/issues'
+    res = requests.post(query, headers = {'Authorization': 'Bearer ' + authToken}, data=json.dumps({"title" : "Branch Protections" , "body" : message }))
     print(query)
+    print("Create Issues Status Code: " + str(res.status_code))
+    #print(res.json())
+
+def create_issue_message(owner, branch_protections):
+    message = "Hi @" + owner + " The following branch protections where added to your repo" + branch_protections
+    return message
+
 
 testing = False
 if testing:
@@ -90,7 +103,10 @@ else:
         print(branch)
         if branch == 'main' :
             status_code = protect_branches(owner_login, repo_name, branch)
-            print(status_code)
+            #print(status_code)
+            if status_code == 200:
+                issue_message = create_issue_message(owner_login, protections_added)
+                create_issue(owner_login, repo_name, issue_message)
            
     #protect_branches(owner_login, repo_name, "main")
     #create_issue(owner_login, repo_name)
