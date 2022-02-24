@@ -28,12 +28,28 @@ upperlimit=100
 #     "Authorization" : 'Bearer' + authToken
 # }
 
+protections_payload = {
+    "required_pull_request_reviews" : {
+        "required_approving_review_count" : 1
+    },
+    "required_status_checks" : {
+        "strict" : True,
+        "contexts": [
+         "contexts"
+    ]
+    },
+    "enforce_admins" : None,
+    "restrictions" : None
+}
+protections_payload = json.dumps(protections_payload)
+#print(protections_payload)
+
 def get_repo_branches(owner, repository):
     query = url + 'repos/' + owner + '/' + repository + '/branches'
-    print(query)
+    #print(query)
     res = requests.get(query, headers = {'Authorization': 'Bearer ' + authToken})
     branches = res.json()
-    print(branches)
+    #print(branches)
     return branches
     
     #     if res.status_code == 200:
@@ -41,6 +57,11 @@ def get_repo_branches(owner, repository):
 def protect_branches(owner, repository, branch):
     query = url + 'repos/' + owner + '/' + repository + '/branches/' + branch + '/protection'
     print(query)
+    res = requests.put(query, headers = {'Authorization': 'Bearer ' + authToken}, data=protections_payload)
+    protect_status_code = res.status_code
+    print(res.status_code)
+    #print(protect_response)
+    return protect_status_code
 
 def create_issue(owner, repository):
     query = url + 'repos/' + owner + '/' + repository + '/issues'
@@ -62,8 +83,15 @@ else:
     owner_login = owner_payload["login"]
     get_repo_branches(owner_login, repo_name)
 
-    for branch in branches:
-        print(branch['name'])
+    repo_branches = get_repo_branches(owner_login, repo_name)
+
+    for branch_data in repo_branches:
+        branch = branch_data['name']
+        print(branch)
+        if branch == 'main' :
+            status_code = protect_branches(owner_login, repo_name, branch)
+            print(status_code)
+           
     #protect_branches(owner_login, repo_name, "main")
     #create_issue(owner_login, repo_name)
     #print(repo_name)
