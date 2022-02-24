@@ -21,13 +21,10 @@ authToken = args.token
 
 
 url = 'https://api.github.com/'
-
 headers = {
     "Accept": "application/vnd.github.v3+json",
     "Authorization": "Bearer " + authToken
-   }
-
-
+}
 
 protections_payload = {
     "required_pull_request_reviews" : {
@@ -42,6 +39,7 @@ protections_payload = {
     "enforce_admins" : None,
     "restrictions" : None
 }
+
 protections_payload = json.dumps(protections_payload)
 
 protections_added = """
@@ -98,6 +96,15 @@ for branch_data in repo_branches:
         #print(status_code)
         if status_code == 200:
             issue_message = create_issue_message(owner_login, protections_added)
-            create_issue(owner_login, repo_name, issue_message)
+            issue_status_code = create_issue(owner_login, repo_name, issue_message)
+            if issue_status_code == 201:
+                print("Branch Protections and Issue Succesfully created")
+            else:
+                print("Unable to create issue")
+                print("Error, check that you have the right access to the repo to create branch protections and issues")
+        else:
+            print("Unable to create Branch Protections")
+            print("Error, check that you have the right access to the repo to create branch protections and issues")
+
 
 
