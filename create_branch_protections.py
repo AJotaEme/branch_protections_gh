@@ -40,11 +40,20 @@ protections_payload = {
     "restrictions" : None
 }
 
+#Find a better way to accomplish this.
+approver_count = protections_payload["required_pull_request_reviews"]["required_approving_review_count"]
+required_status_checks = protections_payload["required_status_checks"]["strict"]
+enforce_admins = protections_payload["enforce_admins"]
+branch_restrictions = protections_payload["restrictions"]
 protections_payload = json.dumps(protections_payload)
 
-protections_added = """
-- Require Pull Reviewers
-- Require Status Checks"""
+protections_added = f"""
+- Num of Required Pull Request Reviewers: {approver_count}
+- Require Status Checks: {required_status_checks}
+- Enforce Admins: {enforce_admins}
+- Restrictions: {branch_restrictions}"""
+
+#print(protections_added)
 
 def get_repo_branches(owner, repository):
     query = url + 'repos/' + owner + '/' + repository + '/branches'
