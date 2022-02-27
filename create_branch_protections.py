@@ -55,36 +55,6 @@ protections_added = f"""
 
 #print(protections_added)
 
-def get_repo_branches(owner, repository):
-    query = url + 'repos/' + owner + '/' + repository + '/branches'
-    #print(query)
-    res = requests.get(query, headers = {'Authorization': 'Bearer ' + authToken})
-    branches = res.json()
-    print("Get Branches Status Code: " + str(res.status_code))
-    #print(branches)
-    return branches
-
-def protect_branches(owner, repository, branch):
-    query = url + 'repos/' + owner + '/' + repository + '/branches/' + branch + '/protection'
-    #print(query)
-    res = requests.put(query, headers = headers, data=protections_payload)
-    protect_status_code = res.status_code
-    print("Protect Branches Status Code: " + str(res.status_code))
-    #print(protect_response)
-    return protect_status_code
-
-def create_issue(owner, repository, message):
-    query = url + 'repos/' + owner + '/' + repository + '/issues'
-    res = requests.post(query, headers = headers, data=json.dumps({"title" : "Branch Protections" , "body" : message }))
-    print(query)
-    print("Create Issues Status Code: " + str(res.status_code))
-    #print(res.json())
-
-def create_issue_message(owner, branch_protections):
-    message = "Hi :wave: @" + owner + "\n The following branch protections where added to your repo" + branch_protections
-    return message
-
-
 # Get payload from Json File (for test)
 jFile = open('payload.json')
 payload = json.load(jFile)
@@ -115,5 +85,32 @@ for branch_data in repo_branches:
             print("Unable to create Branch Protections")
             print("Error, check that you have the right access to the repo to create branch protections and issues")
 
+def get_repo_branches(owner, repository):
+    query = url + 'repos/' + owner + '/' + repository + '/branches'
+    #print(query)
+    res = requests.get(query, headers = {'Authorization': 'Bearer ' + authToken})
+    branches = res.json()
+    print("Get Branches Status Code: " + str(res.status_code))
+    #print(branches)
+    return branches
 
+def protect_branches(owner, repository, branch):
+    query = url + 'repos/' + owner + '/' + repository + '/branches/' + branch + '/protection'
+    #print(query)
+    res = requests.put(query, headers = headers, data=protections_payload)
+    protect_status_code = res.status_code
+    print("Protect Branches Status Code: " + str(res.status_code))
+    #print(protect_response)
+    return protect_status_code
+
+def create_issue(owner, repository, message):
+    query = url + 'repos/' + owner + '/' + repository + '/issues'
+    res = requests.post(query, headers = headers, data=json.dumps({"title" : "Branch Protections" , "body" : message }))
+    print(query)
+    print("Create Issues Status Code: " + str(res.status_code))
+    #print(res.json())
+
+def create_issue_message(owner, branch_protections):
+    message = "Hi :wave: @" + owner + "\n The following branch protections where added to your repo" + branch_protections
+    return message
 
