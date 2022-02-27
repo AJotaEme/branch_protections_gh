@@ -1,13 +1,40 @@
 import json
 import boto3
+import requests
 client = boto3.client('ssm')
 
 url = 'https://api.github.com/'
 
+protections_payload = {
+        "required_pull_request_reviews" : {
+            "required_approving_review_count" : 1
+        },
+        "required_status_checks" : {
+            "strict" : True,
+            "contexts": [
+             "contexts"
+        ]
+        },
+        "enforce_admins" : None,
+        "restrictions" : None
+    }
+    
+#Find a better way to accomplish this.
+approver_count = protections_payload["required_pull_request_reviews"]["required_approving_review_count"]
+required_status_checks = protections_payload["required_status_checks"]["strict"]
+enforce_admins = protections_payload["enforce_admins"]
+branch_restrictions = protections_payload["restrictions"]
+protections_payload = json.dumps(protections_payload)
+protections_added = f"""
+- Num of Required Pull Request Reviewers: {approver_count}
+- Require Status Checks: {required_status_checks}
+- Enforce Admins: {enforce_admins}
+- Restrictions: {branch_restrictions}"""
+
 def get_repo_branches(owner, repository, headers):
     query = url + 'repos/' + owner + '/' + repository + '/branches'
     #print(query)
-    res = requests.get(query, headers = {'Authorization': 'Bearer ' + authToken})
+    res = requests.get(query, headers = headers)
     branches = res.json()
     print("Get Branches Status Code: " + str(res.status_code))
     #print(branches)
@@ -27,7 +54,7 @@ def create_issue(owner, repository, message, headers):
     res = requests.post(query, headers = headers, data=json.dumps({"title" : "Branch Protections" , "body" : message }))
     print(query)
     print("Create Issues Status Code: " + str(res.status_code))
-    #print(res.json())
+    return res.status_code#print(res.json())
 
 def create_issue_message(owner, branch_protections):
     message = "Hi :wave: @" + owner + "\n The following branch protections where added to your repo" + branch_protections
@@ -43,33 +70,6 @@ def lambda_handler(event, context):
         "Accept": "application/vnd.github.v3+json",
         "Authorization": "Bearer " + authToken
     }
-    
-    protections_payload = {
-        "required_pull_request_reviews" : {
-            "required_approving_review_count" : 1
-        },
-        "required_status_checks" : {
-            "strict" : True,
-            "contexts": [
-             "contexts"
-        ]
-        },
-        "enforce_admins" : None,
-        "restrictions" : None
-    }
-    
-    #Find a better way to accomplish this.
-    approver_count = protections_payload["required_pull_request_reviews"]["required_approving_review_count"]
-    required_status_checks = protections_payload["required_status_checks"]["strict"]
-    enforce_admins = protections_payload["enforce_admins"]
-    branch_restrictions = protections_payload["restrictions"]
-    protections_payload = json.dumps(protections_payload)
-    
-    protections_added = f"""
-    - Num of Required Pull Request Reviewers: {approver_count}
-    - Require Status Checks: {required_status_checks}
-    - Enforce Admins: {enforce_admins}
-    - Restrictions: {branch_restrictions}"""
     
     payload = event
     # Get values for payload
