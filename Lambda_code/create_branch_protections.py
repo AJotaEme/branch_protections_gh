@@ -66,34 +66,43 @@ def create_issue_message(owner, branch_protections):
     return message
 
 def calculate_signature(github_signature, githhub_payload):
-    signature_bytes = bytes(github_signature, 'utf-8')
-    digest = hmac.new(key=signature_bytes, msg=githhub_payload, digestmod=hashlib.sha1)
+    signature_bytes = github_signature.encode()
+    digest = hmac.new(signature_bytes, msg=githhub_payload, digestmod=hashlib.sha1)
     signature = digest.hexdigest()
     return signature
     
 def lambda_handler(event, context):
     
-    ssmParameter = client.get_parameter(Name='gh_pat', WithDecryption=True)
-    authToken = ssmParameter['Parameter']['Value']
+    auth_ssmParameter = client.get_parameter(Name='gh_pat', WithDecryption=True)
+    authToken = auth_ssmParameter['Parameter']['Value']
+    
+    webhook_ssmParameter = client.get_parameter(Name='webhook_secret', WithDecryption=True)
+    webhook_secret = webhook_ssmParameter['Parameter']['Value']
     
     headers = {
         "Accept": "application/vnd.github.v3+json",
         "Authorization": "Bearer " + authToken
     }
     
+    #webhook_secret = '123'
+    webhook_secret = str(webhook_secret)
     incoming_signature = re.sub(r'^sha1=', '', event['headers']['X-Hub-Signature'])
-    incoming_payload = unquote(re.sub(r'^payload=', '', event['body']))
-    calculated_signature = calculate_signature(authToken, incoming_payload.encode('utf-8'))
+    #incoming_payload = unquote(re.sub(r'^payload=', '', json.dumps(event['body'])))
+    incoming_payload = event['body']
+    calculated_signature = calculate_signature(webhook_secret, incoming_payload.encode())
+    
+    matches = hmac.compare_digest(incoming_signature, calculated_signature)
+    print(matches)
 
-    if incoming_signature != calculated_signature:
+    if matches == False:
         print('Unauthorized attempt')
         return {
             'statusCode': 403,
             'body': json.dumps('Forbidden')
         }
-
     
-    payload = event["body"]
+    payload = json.loads(event["body"])
+    #print(payload)
     # Get values for payload
     repo_payload = payload["repository"]
     owner_payload = repo_payload["owner"]
