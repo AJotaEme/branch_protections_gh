@@ -106,5 +106,5 @@ for branch_data in repo_branches:
                 print("Error, check that you have the right access to the repo to create branch protections and issues")
         else:
             print("Unable to create Branch Protections")
-            print("Error, check that you have the right access to the repo to create branch protections and issues")
+            print("check that your repo is public; Free Organization's public repo have no protected branches")
 
