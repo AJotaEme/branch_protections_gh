@@ -18,18 +18,18 @@ If you'd like to see the Table of Contents of this README, click on the left-han
 The Python script(both versions) Consists of leveraging the [GitHub Rest API](https://docs.github.com/en/rest).
 
 Mainly it consists of 3 API calls
-1. [Get Repository Branches](https://docs.github.com/en/rest/reference/branches) / We could also use [Get Repository Branch](https://docs.github.com/en/rest/reference/branches#get-a-branch) if we are targeting a specific branch
+1. [Get Repository Branches](https://docs.github.com/en/rest/reference/branches) () We could also use [Get Repository Branch](https://docs.github.com/en/rest/reference/branches#get-a-branch) if we are targeting a specific branch)
 2. [Update a Branch Protection](https://docs.github.com/en/rest/reference/branches#update-branch-protection)
 3. [Create an issue](https://docs.github.com/en/rest/reference/issues#create-an-issue)
 
 We have three different function in the script were the API called is being formed:
 
 - `get_repo_branches()`*
-- `protect_branches()`
+- `protect_branch()`
 - `create_issue()`
 
 
->* Even though we are getting all branches, currently the script is checking for the `main` branch to protect only, to keep the demo simple.
+>* Even though we are getting all branches, currently the script is checking for the `main` branch to protect only.
 
 ## Local Version
 
@@ -38,7 +38,7 @@ What you will need for to run the Local Version:
 - Install [Python](https://www.python.org/downloads/) locally
 - [Local version](./Local_version) code
 
-This script version is meant to emulate a GitHub Webook and how to process a json payload. In [this](./Local_version/) repo folder you will find the python script and a json payload example.
+This script version is meant to emulate a GitHub Webhook and how to process a json payload. In [this](./Local_version/) repo folder you will find the python script and a json payload example.
 
 ### Setup Payload
 
@@ -52,10 +52,10 @@ Please update:
 Once this values has been updated you can run the python script. And the script will
 - Pull the branches from the account and repository you added
 - Create branch protections that are instantiated in the parameter `protections_payload`
-- Create an issue in the account and repository you added witht he permissions added.
+- Create an issue in the account and repository you added with the permissions added.
 
 ### Run the Scripts
-The `create_branch_protections.py` script takes a GitHub Token as paremeter in order to succesfully make the API calls.
+The `create_branch_protections.py` script takes a GitHub Token as parameter in order to successfully make the API calls.
 
 ```bash
 python ./create_branch_protections.py -t <YOUR_GITHUB_TOKEN>
@@ -84,7 +84,7 @@ First we'll start by creating a [Lambda Function](https://console.aws.amazon.com
 - Name your function (e.g. NewRepoProtection)
 - Select Python 3.9 for Runtime
 - Architecture x86_64
-- For default executtion role select `Create a new role`
+- For default execution role select `Create a new role`
 - Hit Create
 
 2. Once you are in the Function You can upload the code.
@@ -124,7 +124,7 @@ The Lambda will need certain permissions to access the secrets we just created.
 
 - Got to [IAM Role Console](https://console.aws.amazon.com/iamv2/home#/roles)
 - Select the IAM Role that is related to your Lambda (it will start with the Lambda Name)
-- Select the Permissions -> Edit Policy -> JSON and you will paste the following code (only update your account number and don't forget the comman)
+- Select the Permissions -> Edit Policy -> JSON and you will paste the following code (only update your account number and don't forget the comma)
 
 ```json
 ,
@@ -144,9 +144,9 @@ The Lambda will need certain permissions to access the secrets we just created.
 
 ## Create GitHub Webhook
 
-The last part is what will trigger our Lambda Function to protect our branches everytime a new repo with a default branch gets created.
+The last part is what will trigger our Lambda Function to protect our branches every time a new repo with a default branch gets created.
 
-GitHub webhooks allows us to build and set up integrations between events in GitHub, like a repo creation, and a webhook listener(our labmda function).
+GitHub webhooks allows us to build and set up integrations between events in GitHub, like a repo creation, and a webhook listener(our lambda function).
 
 Now, let's [create a webhook](https://docs.github.com/en/developers/webhooks-and-events/webhooks/creating-webhooks) and we will select how to Create an [Organization Webhook](https://docs.github.com/en/rest/reference/orgs#webhooks)
 
